@@ -56,6 +56,11 @@ public class VKToken {
         this.accessToken = string;
     }
 
+    @Override
+    public String toString() {
+        return Integer.toString(id) + ":" + accessToken;
+    }
+
     private String requestsBase(String url) throws InterruptedException {
         long time = General.runtimeMXBean.getStartTime() - back;
         if (time < 333) Thread.sleep(time);

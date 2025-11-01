@@ -3,6 +3,7 @@ package org.example;
 import com.google.gson.JsonObject;
 import org.example.Data.IDHistory;
 import org.example.Data.IDsHistory;
+import org.example.Data.OnlineHistory;
 import org.example.Enum.GenerateIDs;
 import org.example.Enum.TypeEnum;
 import org.example.Enum.UserIDEnum;
@@ -109,10 +110,22 @@ public class DataAdd {
             userDB.idHistories[UserIDEnum.TYPE.ordinal()].update(date, type);
         }
 
+        /*
         if (jsonObject.has("mobile_phone")) {
             String str = jsonObject.get("mobile_phone").getAsString();
             if (!str.isEmpty()) userDB.addPhoneNumber(str);
         }
+         */
+
+        /*
+        if (jsonObject.has("last_seen")) {
+            if (userDB.onlineHistory == null) userDB.onlineHistory = new OnlineHistory();
+            userDB.onlineHistory.update(date, jsonObject.get("last_seen").getAsJsonObject().get("time").getAsLong(), jsonObject.get("last_seen").getAsJsonObject().get("platform").getAsInt());
+        } else if (jsonObject.has("online_app")) {
+            if (userDB.onlineHistory == null) userDB.onlineHistory = new OnlineHistory();
+            userDB.onlineHistory.update(date, 0, jsonObject.get("online_app").getAsInt());
+        }
+         */
         return id;
     }
 
@@ -136,6 +149,24 @@ public class DataAdd {
                 TreeSet<Integer> set = General.generateIds[GenerateIDs.FRIENDS.ordinal()].computeIfAbsent(data.id, s -> new TreeSet<>());
                 for (int id : array) {
                     General.generateIds[GenerateIDs.FRIENDS.ordinal()].computeIfAbsent(id, s -> new TreeSet<>()).add(data.id);
+                    set.add(id);
+                }
+            }
+        } return array;
+    }
+
+    public static int[] addSubscribers(RequestsGetID data) {
+        int[] array = addUsers(data);
+        if (data.full) {
+            UserDB userDB = General.users.computeIfAbsent(data.id, s -> new UserDB());
+            if (userDB.iDsHistories == null) userDB.iDsHistories = new IDsHistory[UserIDsEnum.values().length];
+            if (userDB.iDsHistories[UserIDsEnum.SUBSCRIBERS.ordinal()] == null) userDB.iDsHistories[UserIDsEnum.SUBSCRIBERS.ordinal()] = new IDsHistory();
+            userDB.iDsHistories[UserIDsEnum.SUBSCRIBERS.ordinal()].update(data.date, array);
+
+            if (array != null) {
+                TreeSet<Integer> set = General.generateIds[GenerateIDs.SUBSCRIBERS.ordinal()].computeIfAbsent(data.id, s -> new TreeSet<>());
+                for (int id : array) {
+                    General.generateIds[GenerateIDs.SUBSCRIBERS_IN.ordinal()].computeIfAbsent(id, s -> new TreeSet<>()).add(data.id);
                     set.add(id);
                 }
             }

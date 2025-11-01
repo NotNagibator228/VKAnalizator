@@ -73,7 +73,6 @@ public class ScanClasses {
 
         public void scan() throws InterruptedException {
             for (int index = 0; index < rertyCount; ++index) {
-                System.out.println("run: scan");
                 long time = General.runtimeMXBean.getStartTime() - backTime;
                 if (time < rertyTime) Thread.sleep(rertyTime - time);
                 scanTwo();
@@ -82,10 +81,8 @@ public class ScanClasses {
 
         @Override
         public void run() {
-            try {
-                System.out.println("run: run");
-                scan();
-            } catch (InterruptedException e) {
+            try { scan(); }
+            catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }

@@ -12,7 +12,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class UserDB {
@@ -26,18 +25,16 @@ public class UserDB {
     public static final char[] nameChar = { 'F', 'L', 'N', 'S', 'D' };
 
     public void addPhoneNumber(String str) {
-        if (phoneNumberLong == 0) {
-            for (char element : str.toCharArray()) {
-                if (element == '*') {
-                    phoneNumberLong = 0;
-                    phoneNumberString = str;
-                    return;
-                } else if (Character.isDigit(element))
-                    phoneNumberLong = (phoneNumberLong * 10) + (long)(element - '0');
-            }
+        if (phoneNumberLong > 0) return;
+        phoneNumberLong = 0;
 
-            if (phoneNumberString != null) phoneNumberString = null;
-        }
+        for (char element : str.toCharArray()) {
+            if (element == '*') {
+                phoneNumberString = str;
+                phoneNumberLong = 0;
+                return;
+            } else if (Character.isDigit(element)) phoneNumberLong = (phoneNumberLong * 10) + (long)(element - '0');
+        } phoneNumberString = null;
     }
 
     public void load(DataInputStream dataInputStream, int[][] arrays, int id) throws IOException {
@@ -77,16 +74,6 @@ public class UserDB {
 
         if (count != -1) {
             if (iDsHistories == null) iDsHistories = new IDsHistory[UserIDsEnum.values().length];
-
-            /*
-            for (int index = 0; index < iDsHistories.length; ++index) {
-                if (count != 0) {
-                    if (iDsHistories[index] == null) iDsHistories[index] = new IDsHistory();
-                    iDsHistories[index].load(dataInputStream, count);
-                } count = dataInputStream.readInt();
-            }
-             */
-
             if (count != 0) {
                 if (iDsHistories[0] == null) iDsHistories[0] = new IDsHistory();
                 IDsHistory.LoadNodes loadNodes = new IDsHistory.LoadNodes(dataInputStream, count);
@@ -107,7 +94,7 @@ public class UserDB {
 
                 for (Map.Entry<Long, TreeSet<Integer>> element : loadNodes.added.entrySet()) {
                     for (int element_id : element.getValue())
-                        General.generateIds[4].computeIfAbsent(element_id, s -> new TreeSet<>()).add(id);
+                        General.generateIds[3].computeIfAbsent(element_id, s -> new TreeSet<>()).add(id);
                     set.addAll(element.getValue());
                 } iDsHistories[1].load(loadNodes);
                 count = dataInputStream.readInt();
@@ -120,7 +107,7 @@ public class UserDB {
 
                 for (Map.Entry<Long, TreeSet<Integer>> element : loadNodes.added.entrySet()) {
                     for (int element_id : element.getValue())
-                        General.generateIds[5].computeIfAbsent(element_id, s -> new TreeSet<>()).add(id);
+                        General.generateIds[4].computeIfAbsent(element_id, s -> new TreeSet<>()).add(id);
                     set.addAll(element.getValue());
                 } iDsHistories[2].load(loadNodes);
                 count = dataInputStream.readInt();
@@ -134,8 +121,11 @@ public class UserDB {
     }
 
     public void save(DataOutputStream dataOutputStream) throws IOException {
+        System.out.println(phoneNumberLong);
+        System.out.println(phoneNumberString);
+
         dataOutputStream.writeLong(phoneNumberLong);
-        if (phoneNumberLong != -1) dataOutputStream.writeUTF(phoneNumberString);
+        if (phoneNumberLong == 0) dataOutputStream.writeUTF(phoneNumberString);
 
         if (idHistories != null) {
             for (IDHistory element : idHistories)
@@ -156,10 +146,9 @@ public class UserDB {
         } else dataOutputStream.writeInt(-1);
     }
 
-    public String toString(int id) {
-        StringBuilder buffer = new StringBuilder(Integer.toString(id));
-        buffer.append(':');
-
+    @Override
+    public String toString() {
+        StringBuilder buffer = new StringBuilder();
         if (idHistories != null) {
             for (int index = 0; index < nameChar.length; ++index) {
                 if (idHistories[index] != null) {
@@ -168,6 +157,9 @@ public class UserDB {
                 }
             }
         } else buffer.append("NoneName");
+
+        if (phoneNumberLong != -1) buffer.append(Colors.ANSI_GREEN).append((phoneNumberLong > 0) ? Long.toString(phoneNumberLong) : phoneNumberString).append(Colors.ANSI_RESET);
+
         return buffer.toString();
     }
 }

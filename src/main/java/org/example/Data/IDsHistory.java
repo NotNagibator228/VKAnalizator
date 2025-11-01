@@ -106,7 +106,7 @@ public class IDsHistory {
                         buffer[index++] = element;
 
                 if (index != 0) {
-                    if (deleted != null) deleted = new ArrayList<>();
+                    if (deleted == null) deleted = new ArrayList<>();
                     deleted.add(new Node(date, (index == buffer.length) ? buffer : Arrays.copyOf(buffer, index)));
                     update = true;
                 }

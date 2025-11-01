@@ -1,5 +1,7 @@
 package org.example.Clients;
 
+import org.example.Colors;
+
 import java.util.ArrayList;
 import java.util.TreeSet;
 
@@ -27,6 +29,7 @@ public class VKTokens {
 
         ids.add(id);
         data.add(vkToken);
+        System.out.println(Colors.ANSI_GREEN + "Added aceessToken: " + Colors.ANSI_RESET + vkToken);
         return true;
     }
 }

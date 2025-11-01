@@ -10,6 +10,7 @@ import org.example.VKData.UserDB;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
@@ -20,6 +21,8 @@ public class General {
 
     public final static int[] monthCode = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
     public final static RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
+    public static ArrayList<String> strings;
+    public static int indexString;
     public final static VKTokens vkTokens = new VKTokens();
     public final static Object lock = new Object();
 
@@ -60,6 +63,7 @@ public class General {
             element.clear();
         for (TreeMap<Integer, TreeSet<Integer>> element : idGenerateGroups)
             element.clear();
-        for (TreeMap<>)
+        for (TreeMap<Integer, TreeSet<Integer>> element : generateIds)
+            element.clear();
     }
 }
