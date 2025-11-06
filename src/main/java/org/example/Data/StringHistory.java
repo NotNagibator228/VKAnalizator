@@ -6,7 +6,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -120,18 +119,18 @@ public class StringHistory {
     }
 
     private class SearchIndicesThread extends SearchBaseThread {
-        public final TreeSet<Integer> search;
+        public final ArrayList<Integer> search;
 
-        public SearchIndicesThread(String upper, int percent, int begin, int end, TreeSet<Integer> search) {
+        public SearchIndicesThread(String upper, int percent, int begin, int end, ArrayList<Integer> search) {
             super(upper, percent, begin, end);
             this.search = search;
         }
 
         @Override
         public void run() {
-            for (int index : search) {
-                int result = FuzzySearch.partialRatio(lower, nodes.get(index).lower);
-                if (result >= percent) buffer.add(index);
+            for (int index = begin; index < end; ++index) {
+                int result = FuzzySearch.partialRatio(lower, nodes.get(search.get(index)).lower);
+                if (result >= percent) buffer.add(search.get(index));
             }
         }
     }
@@ -160,15 +159,18 @@ public class StringHistory {
         } return buffer;
     }
 
-    public ArrayList<Integer> search(String string, int percent, int thread, ArrayList<Integer> search) throws InterruptedException {
-        TreeSet<Integer> searchNodes = new TreeSet<>();
-        for (int element : search)
-            searchNodes.add(backIndices.get(element));
+    public ArrayList<Integer> getIndices(TreeSet<Integer> data) {
+        TreeSet<Integer> buffer = new TreeSet<>();
+        for (int element : data) {
+            buffer.addAll(nodes.get(backIndices.get(element)).indices);
+        } return new ArrayList<>(buffer);
+    }
 
+    public ArrayList<Integer> search(String string, int percent, int thread, ArrayList<Integer> search) throws InterruptedException {
         ArrayList<Integer> buffer = new ArrayList<>();
-        thread = Math.min(searchNodes.size(), thread);
-        int length = searchNodes.size() / thread;
-        int fix = searchNodes.size() % thread;
+        thread = Math.min(search.size(), thread);
+        int length = search.size() / thread;
+        int fix = search.size() % thread;
         String upper = string.toUpperCase();
         int begin = 0;
         int end = 0;
@@ -177,7 +179,7 @@ public class StringHistory {
         for (int index = 0; index < thread; ++index) {
             end += length;
             if (index < fix) end++;
-            searchIndicesThreads[index] = new SearchIndicesThread(upper, percent, begin, end, searchNodes);
+            searchIndicesThreads[index] = new SearchIndicesThread(upper, percent, begin, end, search);
             searchIndicesThreads[index].start();
             begin = end;
         }

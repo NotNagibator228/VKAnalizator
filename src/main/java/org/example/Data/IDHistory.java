@@ -109,8 +109,6 @@ public class IDHistory {
             if (date < buffer.date) end = index;
             else if (date > buffer.date) begin = index + 1;
             else return buffer;
-        }
-
-        return null;
+        } return ((buffer.date > date) ? ((index == 0) ? null : data.get(index - 1)) : buffer);
     }
 }

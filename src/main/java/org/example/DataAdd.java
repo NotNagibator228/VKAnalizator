@@ -3,8 +3,7 @@ package org.example;
 import com.google.gson.JsonObject;
 import org.example.Data.IDHistory;
 import org.example.Data.IDsHistory;
-import org.example.Data.OnlineHistory;
-import org.example.Enum.GenerateIDs;
+import org.example.Enum.GenerateIDsEnum;
 import org.example.Enum.TypeEnum;
 import org.example.Enum.UserIDEnum;
 import org.example.Enum.UserIDsEnum;
@@ -13,6 +12,8 @@ import org.example.VKRequest.RequestsGet;
 import org.example.VKRequest.RequestsGetID;
 
 import java.util.TreeSet;
+
+import static org.example.Utils.addBDate;
 
 public class DataAdd {
     public static final String[] names = { "first_name", "last_name",  "nickname", "status" };
@@ -26,32 +27,7 @@ public class DataAdd {
         } addName(userDB, date, str, UserIDEnum.DOMAIN.ordinal(), id);
     }
 
-    public static int addBDate(String str) {
-        int[] dates = new int[3];
-        int index = 0, result = 0;
 
-        for (char element : str.toCharArray()) {
-            if (Character.isDigit(element)) dates[index] = (dates[index] * 10) + (int)(element - '0');
-            else ++index;
-        } dates[1] -= 1;
-
-        if (str.length() > 6) {
-            if (dates[2] > 1999) {
-                result += 36524;
-                if (dates[2] > 2000) ++result;
-            } result += dates[0];
-
-            dates[2] %= 100;
-            result += dates[2];
-            result += dates[2] % 4;
-
-            if (dates[2] % 4 == 0) {
-                if (dates[1] > 1) ++result;
-                if (dates[1] > 0) --result;
-            } result += General.monthCode[dates[1]];
-        } else result = -(dates[1] * 100) - dates[0];
-        return result;
-    }
 
     private static void addName(UserDB userDB, long date, String str, int index, int id) {
         if (str.isEmpty()) return;
@@ -117,6 +93,7 @@ public class DataAdd {
         }
          */
 
+
         /*
         if (jsonObject.has("last_seen")) {
             if (userDB.onlineHistory == null) userDB.onlineHistory = new OnlineHistory();
@@ -126,6 +103,7 @@ public class DataAdd {
             userDB.onlineHistory.update(date, 0, jsonObject.get("online_app").getAsInt());
         }
          */
+
         return id;
     }
 
@@ -146,9 +124,9 @@ public class DataAdd {
             userDB.iDsHistories[UserIDsEnum.FRIENDS.ordinal()].update(data.date, array);
 
             if (array != null) {
-                TreeSet<Integer> set = General.generateIds[GenerateIDs.FRIENDS.ordinal()].computeIfAbsent(data.id, s -> new TreeSet<>());
+                TreeSet<Integer> set = General.generateIds[GenerateIDsEnum.FRIENDS.ordinal()].computeIfAbsent(data.id, s -> new TreeSet<>());
                 for (int id : array) {
-                    General.generateIds[GenerateIDs.FRIENDS.ordinal()].computeIfAbsent(id, s -> new TreeSet<>()).add(data.id);
+                    General.generateIds[GenerateIDsEnum.FRIENDS.ordinal()].computeIfAbsent(id, s -> new TreeSet<>()).add(data.id);
                     set.add(id);
                 }
             }
@@ -164,9 +142,9 @@ public class DataAdd {
             userDB.iDsHistories[UserIDsEnum.SUBSCRIBERS.ordinal()].update(data.date, array);
 
             if (array != null) {
-                TreeSet<Integer> set = General.generateIds[GenerateIDs.SUBSCRIBERS.ordinal()].computeIfAbsent(data.id, s -> new TreeSet<>());
+                TreeSet<Integer> set = General.generateIds[GenerateIDsEnum.SUBSCRIBERS.ordinal()].computeIfAbsent(data.id, s -> new TreeSet<>());
                 for (int id : array) {
-                    General.generateIds[GenerateIDs.SUBSCRIBERS_IN.ordinal()].computeIfAbsent(id, s -> new TreeSet<>()).add(data.id);
+                    General.generateIds[GenerateIDsEnum.SUBSCRIBERS_IN.ordinal()].computeIfAbsent(id, s -> new TreeSet<>()).add(data.id);
                     set.add(id);
                 }
             }

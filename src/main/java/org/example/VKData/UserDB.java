@@ -121,8 +121,8 @@ public class UserDB {
     }
 
     public void save(DataOutputStream dataOutputStream) throws IOException {
-        System.out.println(phoneNumberLong);
-        System.out.println(phoneNumberString);
+        //System.out.println(phoneNumberLong);
+        //System.out.println(phoneNumberString);
 
         dataOutputStream.writeLong(phoneNumberLong);
         if (phoneNumberLong == 0) dataOutputStream.writeUTF(phoneNumberString);
@@ -154,6 +154,25 @@ public class UserDB {
                 if (idHistories[index] != null) {
                     buffer.append(nameChar[index]);
                     buffer.append(Colors.ANSI_GREEN).append(General.userStrings[index].strings.get(idHistories[index].data.getLast().id)).append(Colors.ANSI_RESET);
+                }
+            }
+        } else buffer.append("NoneName");
+
+        if (phoneNumberLong != -1) buffer.append(Colors.ANSI_GREEN).append((phoneNumberLong > 0) ? Long.toString(phoneNumberLong) : phoneNumberString).append(Colors.ANSI_RESET);
+
+        return buffer.toString();
+    }
+
+    public String toString(long date) {
+        StringBuilder buffer = new StringBuilder();
+        if (idHistories != null) {
+            for (int index = 0; index < nameChar.length; ++index) {
+                if (idHistories[index] != null) {
+
+                    IDHistory.Node node = idHistories[index].get(date);
+                    if (node == null) continue;
+                    buffer.append(nameChar[index]);
+                    buffer.append(Colors.ANSI_GREEN).append(General.userStrings[index].strings.get(node.id)).append(Colors.ANSI_RESET);
                 }
             }
         } else buffer.append("NoneName");

@@ -403,4 +403,55 @@ public class IDsHistory {
 
     public boolean containAdded(int id) { return containNode(added, id); }
     public boolean containDeleted(int id) { return containNode(deleted, id); }
+
+    public int size(long date) {
+        if (last.date <= date) return ((last.data == null) ? 0 : last.data.length);
+        if (added.getFirst().date > date) return -1;
+        int buffer = 0;
+
+        if (deleted == null) {
+            for (Node element : added) {
+                if (element.date > date) return buffer;
+                if (element.data == null) continue;
+                buffer += element.data.length;
+            }
+        } else {
+            Iterator<Node> addedIterator = added.iterator();
+            Iterator<Node> deletedIterator = deleted.iterator();
+            Node addedNode = addedIterator.next();
+            Node deletedNode = deletedIterator.next();
+
+            if (addedNode.data == null) addedNode = ((addedIterator.hasNext()) ? addedIterator.next() : null);
+            while (addedNode != null && deletedNode != null) {
+                if (addedNode.date < deletedNode.date) {
+                    if (addedNode.date > date) return buffer;
+                    buffer += addedNode.data.length;
+                    addedNode = ((addedIterator.hasNext()) ? addedIterator.next() : null);
+                } else if (addedNode.date > deletedNode.date) {
+                    if (deletedNode.date > date) return buffer;
+                    buffer -= deletedNode.data.length;
+                    deletedNode = ((deletedIterator.hasNext()) ? deletedIterator.next() : null);
+                } else {
+                    if (addedNode.date > date) return buffer;
+                    buffer += addedNode.data.length;
+                    buffer -= deletedNode.data.length;
+
+                    addedNode = ((addedIterator.hasNext()) ? addedIterator.next() : null);
+                    deletedNode = ((deletedIterator.hasNext()) ? deletedIterator.next() : null);
+                }
+            }
+
+            while (addedNode != null) {
+                if (addedNode.date > date) return buffer;
+                buffer += addedNode.data.length;
+                addedNode = ((addedIterator.hasNext()) ? addedIterator.next() : null);
+            }
+
+            while (deletedNode != null) {
+                if (deletedNode.date > date) return buffer;
+                buffer -= deletedNode.data.length;
+                deletedNode = ((deletedIterator.hasNext()) ? deletedIterator.next() : null);
+            }
+        } return buffer;
+    }
 }

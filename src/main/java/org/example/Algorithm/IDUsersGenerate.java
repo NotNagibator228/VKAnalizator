@@ -4,10 +4,7 @@ import org.example.Data.IDHistory;
 import org.example.General;
 import org.example.VKData.UserDB;
 
-import java.util.Arrays;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 public class IDUsersGenerate {
     public record Pair(int count, int index) implements Comparable<Pair> {
@@ -28,7 +25,7 @@ public class IDUsersGenerate {
         return buffer[buffer.length - 1].index;
     }
 
-    public static int getGenerateIdGenerate(int id, int indexGenerate, int index) {
+    public static int getGenerateUserIdGenerate(int id, int indexGenerate, int index) {
         TreeSet<Integer> generate = General.generateIds[indexGenerate].get(id);
         if (generate == null) return -1;
 
@@ -45,9 +42,9 @@ public class IDUsersGenerate {
         return getMax(buffer);
     }
 
-    public static int getGenerateIdGenerate(int id, int indexGenerate, int index, long date) {
-        TreeSet<Integer> generate = General.generateIds[indexGenerate].get(id);
-        if (generate == null) return -1;
+    public static int getGenerateUserIdGenerate(int id, int indexGenerate, int index, long date) {
+        TreeSet<Integer> generate = Generate.getGenerateUserIds(id, indexGenerate, index, date);
+        if (generate.isEmpty()) return -1;
 
         TreeMap<Integer, Integer> buffer = new TreeMap<>();
         for (int element : generate) {
@@ -65,7 +62,7 @@ public class IDUsersGenerate {
         return getMax(buffer);
     }
 
-    public static int getGenerateId(int userId, int indexIds, int indexId) {
+    public static int getGenerateUserId(int userId, int indexIds, int indexId) {
         UserDB userDB = General.users.get(userId);
         if (userDB == null) return -1;
         if (userDB.iDsHistories == null) return -2;
@@ -85,12 +82,14 @@ public class IDUsersGenerate {
         return getMax(buffer);
     }
 
-    public static int getGenerateId(int userId, int indexIds, int indexId, long date) {
+    public static int getGenerateUserId(int userId, int indexIds, int indexId, long date) {
         UserDB userDB = General.users.get(userId);
         if (userDB == null) return -1;
         if (userDB.iDsHistories == null) return -2;
         if (userDB.iDsHistories[indexIds] == null) return -3;
-        if (userDB.iDsHistories[indexIds].last.data == null) return -4;
+        TreeSet<Integer> set = userDB.iDsHistories[indexIds].get(date);
+        if (set == null) return -4;
+        if (set.isEmpty()) return -5;
 
         TreeMap<Integer, Integer> buffer = new TreeMap<>();
         for (int element : userDB.iDsHistories[indexIds].last.data) {
@@ -103,30 +102,7 @@ public class IDUsersGenerate {
             buffer.put(node.id, buffer.getOrDefault(node.id, 0) + 1);
         }
 
-        if (buffer.isEmpty()) return -5;
+        if (buffer.isEmpty()) return -6;
         return getMax(buffer);
     }
-
-    /*
-    public static int getGenerateIdGenerateLevel(int userId, int indexGenerate, int indexGenerateIn, int index, int level) {
-        TreeSet<Integer> scanned = new TreeSet<>();
-        TreeSet<Integer> newScan = new TreeSet<>();
-        TreeMap<Integer, Integer> buffer = new TreeMap<>();
-
-        newScan.add(userId);
-        for (int a = 0; a < level; ++a) {
-            for (int element : newScan) {
-                int result = getGenerateIdGenerate(element, indexGenerate, index);
-                if (result < 0) continue;
-
-                buffer.put();
-            }
-
-            if (level - a > 1) {
-
-            }
-        }
-    }
-
-     */
 }

@@ -2,7 +2,7 @@ package org.example;
 
 import org.example.Clients.VKTokens;
 import org.example.Data.StringHistory;
-import org.example.Enum.GenerateIDs;
+import org.example.Enum.GenerateIDsEnum;
 import org.example.Enum.GroupIDEnum;
 import org.example.Enum.UserIDEnum;
 import org.example.VKData.GroupDB;
@@ -13,7 +13,6 @@ import java.lang.management.RuntimeMXBean;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.locks.Lock;
 
 public class General {
     public final static int userStringCount = 5;
@@ -25,6 +24,7 @@ public class General {
     public static int indexString;
     public final static VKTokens vkTokens = new VKTokens();
     public final static Object lock = new Object();
+    public static int threadCount = 4;
 
     public static final StringHistory[] userStrings = new StringHistory[userStringCount];
     public static final StringHistory[] groupStrings = new StringHistory[groupStringCount];
@@ -34,7 +34,7 @@ public class General {
 
     public static final TreeMap<Integer, TreeSet<Integer>>[] idGenerateUsers = new TreeMap[UserIDEnum.values().length];
     public static final TreeMap<Integer, TreeSet<Integer>>[] idGenerateGroups = new TreeMap[GroupIDEnum.values().length];
-    public static final TreeMap<Integer, TreeSet<Integer>>[] generateIds = new TreeMap[GenerateIDs.values().length];
+    public static final TreeMap<Integer, TreeSet<Integer>>[] generateIds = new TreeMap[GenerateIDsEnum.values().length];
 
     public static void init(){
         for (int index = 0; index < userStringCount; ++index)
@@ -46,7 +46,7 @@ public class General {
             idGenerateUsers[index] = new TreeMap<>();
         for (int index = 0; index < GroupIDEnum.values().length; ++index)
             idGenerateGroups[index] = new TreeMap<>();
-        for (int index = 0; index < GenerateIDs.values().length; ++index)
+        for (int index = 0; index < GenerateIDsEnum.values().length; ++index)
             generateIds[index] = new TreeMap<>();
     }
 

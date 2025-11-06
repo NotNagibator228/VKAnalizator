@@ -31,10 +31,13 @@ public class ScanClasses {
         protected ArrayList<Integer>[] getDivide(ArrayList<Integer> data, int thread) {
             thread = Math.min(thread, data.size());
             int count = data.size() / thread;
-            int fix = count & thread;
+            int fix = data.size() % thread;
 
             ArrayList<Integer>[] buffer = new ArrayList[thread];
             int begin = 0, end = 0;
+
+            //Откладочка
+            //System.out.println(count + ":" + fix + ":" + thread + ":" + data.size());
 
             for (int index = 0; index < thread; ++index) {
                 end += count;
@@ -146,7 +149,7 @@ public class ScanClasses {
 
         @Override
         protected void scanBaseDB(ScanBaseDB data) throws InterruptedException {
-            ArrayList<Integer>[] buffer = getDivide(data.nonScan, 1000, vkTokens.size());
+            ArrayList<Integer>[] buffer = getDivide(data.nonScan, vkTokens.size());
             ScanThreads.FriendsGetThread[] friendsGetThreads = new ScanThreads.FriendsGetThread[buffer.length];
             ArrayList<VKToken> remove = new ArrayList<>();
             data.nonScan.clear();

@@ -16,9 +16,20 @@ public class StringUtils {
                             a = b; done = true; break q;
                         }
                         case ',', '>', '&' -> {
-                            buffer.add(string.substring(b, b + 1));
                             if (a != b) buffer.add(string.substring(a, b));
+                            buffer.add(string.substring(b, b + 1));
                             a = b; done = true; break q;
+                        }
+                        case '\'' -> {
+                            for (int c = b + 1; c < string.length(); ++c) {
+                                if (string.charAt(c) == '\'') {
+                                    buffer.add(string.substring(b + 1, c));
+                                    a = c; done = true; break q;
+                                }
+                            }
+
+                            System.out.println("Error");
+                            return null;
                         }
                         case '"' -> {
                             StringBuffer stringBuffer = new StringBuffer();

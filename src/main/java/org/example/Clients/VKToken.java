@@ -49,7 +49,7 @@ public class VKToken {
     public final int id;
     public final String accessToken;
     private final HttpClient httpClient = HttpClients.custom().setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.STANDARD).build()).build();
-    private long back = -200;
+    private long back = 0;
 
     public VKToken(int id, String string) {
         this.id = id;
@@ -63,7 +63,8 @@ public class VKToken {
 
     private String requestsBase(String url) throws InterruptedException {
         long time = General.runtimeMXBean.getStartTime() - back;
-        if (time < 333) Thread.sleep(time);
+        back = General.runtimeMXBean.getStartTime();
+        if (time < 200) { Thread.sleep(200 - time); }
 
         HttpGet request = new HttpGet(url);
         try {
