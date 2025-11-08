@@ -50,7 +50,7 @@ public class Utils {
         for (char element : str.toCharArray()) {
             if (Character.isDigit(element)) dates[index] = (dates[index] * 10) + (int)(element - '0');
             else ++index;
-        } dates[1] -= 1;
+        } --dates[1];
 
         if (str.length() > 6) {
             if (dates[2] > 1999) {
@@ -64,7 +64,7 @@ public class Utils {
 
             if (dates[2] % 4 == 0) {
                 if (dates[1] > 1) ++result;
-                if (dates[2] == 0) --result;
+                if (dates[2] > 0) --result;
             } result += General.monthCode[dates[1]];
         } else result = -(dates[1] * 100) - dates[0];
         return result;

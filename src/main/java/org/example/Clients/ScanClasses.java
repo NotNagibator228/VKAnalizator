@@ -13,7 +13,7 @@ public class ScanClasses {
         public final long rertyTime;
         public long backTime = -99999999;
 
-        public ScanBase(ArrayList<Integer> ids, ArrayList<VKToken> vkTokens, int rertyCount, int rertyTime) {
+        public ScanBase(ArrayList<Integer> ids, ArrayList<VKToken> vkTokens, int rertyCount, long rertyTime) {
             this.ids = ids;
             this.vkTokens = vkTokens;
             this.rertyTime = rertyTime;
@@ -107,7 +107,7 @@ public class ScanClasses {
         public final int level;
         public final ArrayList<Integer> newScan = new ArrayList<>();
 
-        public ScanLevel(ArrayList<Integer> ids, ArrayList<VKToken> vkTokens, int rertyCount, int rertyTime, int level) {
+        public ScanLevel(ArrayList<Integer> ids, ArrayList<VKToken> vkTokens, int rertyCount, long rertyTime, int level) {
             super(ids, vkTokens, rertyCount, rertyTime);
             this.level = level;
         }
@@ -143,7 +143,7 @@ public class ScanClasses {
     }
 
     public static class ScanFriends extends ScanLevel {
-        public ScanFriends(ArrayList<Integer> ids, ArrayList<VKToken> vkTokens, int rertyCount, int rertyTime, int level) {
+        public ScanFriends(ArrayList<Integer> ids, ArrayList<VKToken> vkTokens, int rertyCount, long rertyTime, int level) {
             super(ids, vkTokens, rertyCount, rertyTime, level);
         }
 

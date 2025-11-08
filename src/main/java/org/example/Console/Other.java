@@ -1,6 +1,8 @@
 package org.example.Console;
 
+import org.example.Algorithm.Chains;
 import org.example.Algorithm.Generate;
+import org.example.Clients.ScanClasses;
 import org.example.Console.DB.Groups;
 import org.example.Console.DB.IDsBase;
 import org.example.Console.DB.Users;
@@ -11,56 +13,12 @@ import org.example.General;
 import org.example.Utils;
 import org.example.VKData.UserDB;
 
+import java.security.CodeSigner;
 import java.util.ArrayList;
 import java.util.TreeSet;
 
 public class Other {
-    public static void getTime() {
-        long buffer = Long.parseLong(General.strings.get(General.indexString + 1));
-        ++General.indexString;
-    }
 
-    public static int getPercent() {
-        int buffer = 100;
-        if (General.strings.get(General.indexString).charAt(0) == '-') {
-            if (General.strings.get(General.indexString).length() == 1){
-                System.out.println("Error length argument -");
-                return -1;
-            }
-
-            if (General.strings.get(General.indexString).charAt(1) == '-') {
-                if (General.strings.get(General.indexString).equals("percent")) {
-                    try {
-                        buffer = Integer.parseInt(General.strings.get(General.indexString + 1));
-                    } catch (NumberFormatException e) {
-                        System.out.println("Error percent");
-                        return -3;
-                    }
-                } else {
-                    System.out.println("Error not argument: " + General.strings.get(General.indexString));
-                    return -2;
-                }
-            } else {
-                if (General.strings.get(General.indexString).charAt(1) == 'p') {
-                    General.indexString += 2;
-                    try {
-                        buffer = Integer.parseInt(General.strings.get(General.indexString + 1));
-                    } catch (NumberFormatException e) {
-                        System.out.println("Error percent");
-                        return -4;
-                    }
-                } else {
-                    System.out.println("Error not key: " + General.strings.get(General.indexString).charAt(1));
-                    return -5;
-                }
-            }
-        }
-
-        if (buffer < 20 || buffer > 100) {
-            System.out.println("Error percent < 20 or percent > 100");
-            return -6;
-        } return buffer;
-    }
 
     public static boolean run() throws InterruptedException {
         IDsBase data = null;
@@ -82,31 +40,14 @@ public class Other {
 
         if (type == -1) {
             System.out.println("Error not command: " + General.strings.get(General.indexString));
+            System.out.println(General.help);
             return false;
         }
 
         ++General.indexString;
-        if (General.strings.get(General.indexString).charAt(0) == '-') {
-            if (General.strings.get(General.indexString).length() == 1) {
-                System.out.println("Error parameter -");
-                return false;
-            }
-
-            if (General.strings.get(General.indexString).charAt(1) == '1') {
-                if (General.strings.get(General.indexString).substring(2).equals("date")) {
-                    getTime();
-                } else {
-                    System.out.println("Error not argument: " + General.strings.get(General.indexString));
-                    return false;
-                }
-            } else {
-                if (General.strings.get(General.indexString).charAt(1) == 'd') getTime();
-                else {
-                    System.out.println("Error not key: " + General.strings.get(General.indexString).charAt(1));
-                    return false;
-                }
-            }
-        }
+        Long dateTemp = Base.getDate();
+        if (dateTemp == null) return false;
+        date = dateTemp;
 
         switch (type) {
             case 8 -> { data = new Users(new ArrayList<>(General.users.keySet()), date); }
@@ -185,8 +126,26 @@ public class Other {
             }
 
             switch (General.strings.get(++General.indexString)) {
-                case "out" -> {
-                    if (data instanceof Users users) { users.out(); }
+                case "out" -> { data.out(); }
+                case "scan" -> {
+                    ++General.indexString;
+                    Scan.Node node = Scan.getScan();
+                    if (node == null) return false;
+
+                    ScanClasses.ScanBase scan = null;
+                    switch (node.type) {
+                        case 0 -> {
+                            if (data instanceof Users) {
+                                scan = new ScanClasses.ScanFriends(data.data, node.tokens, node.rerty, node.rertyTime, node.level);
+                            } else {
+                                System.out.println("Error scan not users");
+                                return false;
+                            }
+                        }
+                    }
+
+                    scan.start();
+                    scan.join();
                 }
                 case "filter" -> {
                     if (General.strings.size() - General.indexString < 3) {
@@ -200,7 +159,6 @@ public class Other {
                                 if (!Utils.isBDate(General.strings.get(++General.indexString))) return false;
                                 int bdate = Utils.addBDate(General.strings.get(General.indexString));
                                 users.filterId(UserIDEnum.BDATE.ordinal(), bdate);
-                                General.indexString += 2;
                             } else {
                                 System.out.println("Error syntax bdate");
                                 return false;
@@ -208,10 +166,11 @@ public class Other {
                         }
                         case "name" -> {
                             if (data instanceof Users users) {
-                                int percent = getPercent();
+                                ++General.indexString;
+                                int percent = Base.getPercent();
                                 if (percent < 0) return false;
 
-                                type = switch (General.strings.get(++General.indexString)) {
+                                type = switch (General.strings.get(General.indexString)) {
                                     case "first" -> UserIDEnum.FIRST_NAME.ordinal();
                                     case "last" -> UserIDEnum.LAST_NAME.ordinal();
                                     case "nick" -> UserIDEnum.NICK_NAME.ordinal();
@@ -223,18 +182,18 @@ public class Other {
                                 if (type == -1) {
                                     System.out.println("Error not name: " + General.strings.get(General.indexString));
                                     return false;
-                                }
+                                } ++General.indexString;
 
                                 ArrayList<String> strings = Base.getStrings();
                                 if (strings == null) return false;
                                 users.filterName(type, strings, percent);
-                                General.indexString += 2;
+                                --General.indexString;
                             }
                         }
                         case "names" -> {
                             if (data instanceof Users users) {
                                 ++General.indexString;
-                                int percent = getPercent();
+                                int percent = Base.getPercent();
 
                                 ArrayList<Base.Names> buffer = Base.getNames();
                                 if (buffer == null) return false;
@@ -265,31 +224,43 @@ public class Other {
                 case "remove" -> {
 
                 }
-                case "general" -> {
-                    boolean generate = false;
-                    ++General.indexString;
+                case "chain" -> {
+                    if (data instanceof Users users) {
+                        ++General.indexString;
+                        Boolean generate = Base.getGenerate();
+                        if (generate == null) return false;
 
-                    if (General.strings.get(General.indexString).charAt(0) == '-') {
-                        if (General.strings.get(General.indexString).length() == 1) {
-                            System.out.println("Error length general argument -");
+                        ArrayList<Integer> in = Base.getIntegers();
+                        if (in == null) return false;
+
+                        if (!General.strings.get(General.indexString).equals("to")) {
+                            System.out.println("Error not chain to");
                             return false;
                         }
 
-                        if (General.strings.get(General.indexString).charAt(1) == '-') {
-                            if (General.strings.get(General.indexString).substring(2).equals("generate"))
-                                generate = true;
-                            else {
-                                System.out.println("Error not argument of general:" + General.strings.get(General.indexString).substring(2));
-                                return false;
-                            }
-                        } else {
-                            if (General.strings.get(General.indexString).charAt(1) == 'g') generate = true;
-                            else {
-                                System.out.println("Error not general key: " + General.strings.get(General.indexString).charAt(1));
-                                return false;
-                            }
-                        } ++General.indexString;
+                        ++General.indexString;
+                        ArrayList<Integer> to = Base.getIntegers();
+                        --General.indexString;
+
+                        TreeSet<Integer> set = new TreeSet<>();
+                        set.addAll(in);
+                        set.addAll(to);
+
+                        if (set.size() < (in.size() + to.size())) {
+                            System.out.println("Error in array or to array identical elements");
+                            return false;
+                        }
+
+                        Chains.Base chain = ((generate) ? new Chains.ChainGenerateUsers(in, to, date, users.data) : new Chains.ChainUsers(in, to, date, users.data));
+                        if (chain.data == null) return false;
+                        chain.out();
+                        data.data = chain.getIds();
                     }
+                }
+                case "general" -> {
+                    ++General.indexString;
+                    Boolean generate = Base.getGenerate();
+                    if (generate == null) return false;
 
                     if (data instanceof Users users) {
                         switch (General.strings.get(General.indexString)) {

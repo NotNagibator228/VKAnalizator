@@ -8,14 +8,13 @@ public class StringUtils {
         for (int a = 0; a < string.length(); ++a) {
             if (string.charAt(a) != ' ') {
                 boolean done = false;
-
             q:  for (int b = a; b < string.length(); ++b) {
                     switch (string.charAt(b)) {
                         case ' ' -> {
                             buffer.add(string.substring(a, b));
                             a = b; done = true; break q;
                         }
-                        case ',', '>', '&' -> {
+                        case ',', '>', '&', '{', '}' -> {
                             if (a != b) buffer.add(string.substring(a, b));
                             buffer.add(string.substring(b, b + 1));
                             a = b; done = true; break q;
@@ -32,7 +31,7 @@ public class StringUtils {
                             return null;
                         }
                         case '"' -> {
-                            StringBuffer stringBuffer = new StringBuffer();
+                            StringBuilder stringBuilder = new StringBuilder();
                         q2:  for (int c = b + 1; c < string.length(); ++c) {
                                 switch (string.charAt(c)) {
                                     case '\\' -> {
@@ -41,15 +40,15 @@ public class StringUtils {
                                             return null;
                                         } ++c;
 
-                                        if (string.charAt(c) == '\\' || string.charAt(c) == '"') stringBuffer.append(string.charAt(c));
-                                        else if (string.charAt(c) == 'n') stringBuffer.append('\n');
+                                        if (string.charAt(c) == '\\' || string.charAt(c) == '"') stringBuilder.append(string.charAt(c));
+                                        else if (string.charAt(c) == 'n') stringBuilder.append('\n');
                                         else {
                                             System.out.println("Error");
                                             return null;
                                         }
                                     }
                                     case '"' -> { a = c; done = true; break q2; }
-                                    default -> { stringBuffer.append(string.charAt(c)); }
+                                    default -> { stringBuilder.append(string.charAt(c)); }
                                 }
                             }
 
@@ -58,7 +57,7 @@ public class StringUtils {
                                 return null;
                             }
 
-                            buffer.add(stringBuffer.toString());
+                            buffer.add(stringBuilder.toString());
                             break q;
                         }
                     }

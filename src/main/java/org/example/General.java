@@ -10,6 +10,7 @@ import org.example.VKData.UserDB;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -25,6 +26,12 @@ public class General {
     public final static VKTokens vkTokens = new VKTokens();
     public final static Object lock = new Object();
     public static int threadCount = 4;
+
+    public static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ss:mm:HH dd/MM/yyyy");
+    public static final String help =
+            "dataBase { load { file, ... } / save { file } / info }" +
+                    "\ntoken { add { id accessToken, ... } / remove { id, ... } / info }"
+            ;
 
     public static final StringHistory[] userStrings = new StringHistory[userStringCount];
     public static final StringHistory[] groupStrings = new StringHistory[groupStringCount];

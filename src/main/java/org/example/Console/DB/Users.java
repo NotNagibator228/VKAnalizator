@@ -1,6 +1,7 @@
 package org.example.Console.DB;
 
 import org.example.Algorithm.Generate;
+import org.example.Colors;
 import org.example.Console.Base;
 import org.example.Data.IDHistory;
 import org.example.Data.IDsHistory;
@@ -169,7 +170,7 @@ public class Users extends IDsBase {
         if (data.isEmpty()) data = null;
     }
 
-    protected ArrayList<Integer> searchNames(ArrayList<Base.Names> names, int percent) {
+    protected ArrayList<Integer> searchNames(ArrayList<Base.Names> names, int percent) throws InterruptedException {
         ArrayList<Integer> buffer = new ArrayList<>();
         if (percent == 100) {
             ArrayList<NamesIndices> namesIndices = new ArrayList<>();
@@ -216,17 +217,90 @@ public class Users extends IDsBase {
                 }
             }
         } else {
+            TreeSet<Integer> firstNodes = new TreeSet<>();
+            TreeSet<Integer> lastNodes = new TreeSet<>();
+
             if (date == 0) {
+                for (int userId : data) {
+                    UserDB userDB = General.users.get(userId);
+                    if (userDB.idHistories == null || userDB.idHistories[UserIDEnum.FIRST_NAME.ordinal()] == null || userDB.idHistories[UserIDEnum.LAST_NAME.ordinal()] == null) continue;
 
+                    firstNodes.add(userDB.idHistories[UserIDEnum.FIRST_NAME.ordinal()].data.getLast().id);
+                    lastNodes.add(userDB.idHistories[UserIDEnum.LAST_NAME.ordinal()].data.getLast().id);
+                }
             } else {
+                for (int userId : data) {
+                    UserDB userDB = General.users.get(userId);
+                    if (userDB.idHistories == null || userDB.idHistories[UserIDEnum.FIRST_NAME.ordinal()] == null || userDB.idHistories[UserIDEnum.LAST_NAME.ordinal()] == null) continue;
 
+                    IDHistory.Node firstNode = userDB.idHistories[UserIDEnum.FIRST_NAME.ordinal()].get(date);
+                    if (firstNode == null) continue;
+                    IDHistory.Node lastNode = userDB.idHistories[UserIDEnum.LAST_NAME.ordinal()].get(date);
+                    if (lastNode == null) continue;
+
+                    firstNodes.add(firstNode.id);
+                    lastNodes.add(lastNode.id);
+                }
+            }
+
+            ArrayList<Integer> firstIndices = General.userStrings[UserIDEnum.FIRST_NAME.ordinal()].getIndices(firstNodes);
+            ArrayList<Integer> lastIndices = General.userStrings[UserIDEnum.LAST_NAME.ordinal()].getIndices(lastNodes);
+            ArrayList<NamesIndicesSet> namesIndicesSets = new ArrayList<>();
+
+            for (Base.Names element : names) {
+                ArrayList<Integer> first = General.userStrings[UserIDEnum.FIRST_NAME.ordinal()].search(element.first(), percent, General.threadCount, firstIndices);
+                ArrayList<Integer> last = General.userStrings[UserIDEnum.LAST_NAME.ordinal()].search(element.last(), percent, General.threadCount, lastIndices);
+                if (first.isEmpty() || last.isEmpty()) continue;
+
+                NamesIndicesSet temp = new NamesIndicesSet();
+                for (int index : first)
+                    temp.first.addAll(General.userStrings[UserIDEnum.FIRST_NAME.ordinal()].nodes.get(index).indices);
+                for (int index : last)
+                    temp.last.addAll(General.userStrings[UserIDEnum.LAST_NAME.ordinal()].nodes.get(index).indices);
+                namesIndicesSets.add(temp);
+            } if (namesIndicesSets.isEmpty()) return buffer;
+
+            if (date == 0) {
+                for (int userId : data) {
+                    UserDB userDB = General.users.get(userId);
+                    if (userDB == null || userDB.idHistories == null || userDB.idHistories[UserIDEnum.FIRST_NAME.ordinal()] == null || userDB.idHistories[UserIDEnum.LAST_NAME.ordinal()] == null) continue;
+
+                    for (NamesIndicesSet element : namesIndicesSets) {
+                        if (element.first.contains(userDB.idHistories[UserIDEnum.FIRST_NAME.ordinal()].data.getLast().id) && element.last.contains(userDB.idHistories[UserIDEnum.LAST_NAME.ordinal()].data.getLast().id)) {
+                            buffer.add(userId);
+                            break;
+                        }
+                    }
+                }
+            } else {
+                for (int userId : data) {
+                    UserDB userDB = General.users.get(userId);
+                    if (userDB == null || userDB.idHistories == null || userDB.idHistories[UserIDEnum.FIRST_NAME.ordinal()] == null || userDB.idHistories[UserIDEnum.LAST_NAME.ordinal()] == null) continue;
+
+                    IDHistory.Node first = userDB.idHistories[UserIDEnum.FIRST_NAME.ordinal()].get(date);
+                    if (first == null) continue;
+                    IDHistory.Node last = userDB.idHistories[UserIDEnum.LAST_NAME.ordinal()].get(date);
+                    if (last == null) continue;
+
+                    for (NamesIndicesSet element : namesIndicesSets) {
+                        if (element.first.contains(first.id) && element.last.contains(last.id)) {
+                            buffer.add(userId);
+                            break;
+                        }
+                    }
+                }
             }
         } return buffer;
     }
 
-    public void filterNames(ArrayList<Base.Names> names, int percent) {
+    public void filterNames(ArrayList<Base.Names> names, int percent) throws InterruptedException {
         this.data = searchNames(names, percent);
         if (this.data.isEmpty()) data = null;
+    }
+
+    public void removeNames(ArrayList<Base.Names> names, int percent) throws InterruptedException {
+        data.removeAll(searchNames(names, percent));
+        if (data.isEmpty()) data = null;
     }
 
     public void generalIds(int indexGenerate, int index, boolean generate) {
@@ -326,16 +400,21 @@ public class Users extends IDsBase {
         } data = new ArrayList<>(buffer);
     }
 
-    public void out() {
-        System.out.println("Users count: " + data.size());
-        if (date == 0) {
-            for (int element : data) {
-                UserDB userDB = General.users.get(element);
-                if (userDB == null) continue;
-                System.out.println(Integer.toString(element) + ':' + userDB);
-            }
-        } else {
+    @Override
+    public void outNoDate() {
+        for (int element : data) {
+            UserDB userDB = General.users.get(element);
+            if (userDB == null) continue;
+            System.out.println(Integer.toString(element) + ':' + userDB);
+        }
+    }
 
+    @Override
+    public void outDate() {
+        for (int element : data) {
+            UserDB userDB = General.users.get(element);
+            if (userDB == null) continue;
+            System.out.println(Integer.toString(element) + ':' + userDB.toString(date));
         }
     }
 }

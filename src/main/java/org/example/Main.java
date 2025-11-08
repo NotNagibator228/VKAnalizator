@@ -1,18 +1,22 @@
 package org.example;
 
-import org.example.Algorithm.Chain;
-import org.example.Algorithm.IDUsersGenerate;
+import org.example.Algorithm.Chains;
+import org.example.Algorithm.Probability;
 import org.example.Clients.ScanClasses;
-import org.example.Clients.VKToken;
+import org.example.Console.DB.Users;
 import org.example.Console.DataBase;
 import org.example.Console.Other;
 import org.example.Console.Scan;
 import org.example.Console.Token;
+import org.example.Enum.GenerateIDsEnum;
 import org.example.Enum.UserIDEnum;
+import org.example.Enum.UserIDsEnum;
+import org.example.VKData.UserDB;
 
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import static org.example.Console.StringUtils.getString;
@@ -23,7 +27,6 @@ public class Main {
     public static void main(String[] args) throws InterruptedException, IOException {
         Scanner scanner = new Scanner(System.in);
         General.init();
-
     q:  while (true) {
             System.out.print(Colors.ANSI_GREEN + "> " + Colors.ANSI_RESET);
             String str = scanner.nextLine();
@@ -35,16 +38,13 @@ public class Main {
                 switch (General.strings.get(General.indexString)) {
                     case "dataBase" -> { if (!DataBase.run()) continue q; }
                     case "token" -> { if (!Token.run()) continue q; }
-                    case "scan" -> { Scan.run(); }
-                    case "test" -> {
-                        Chain.ChainGenerate test = new Chain.ChainGenerate(new ArrayList<>(List.of(182011717)), new ArrayList<>(List.of(517988146)), 0);
-                        test.out();
-                        return;
-                    }
+                    case "scan" -> { if (!Scan.run()) continue q; }
                     case "help" -> {
-                        System.out.println(
-                            "Пока читайте исходники я это не сделал"
-                        );
+                        System.out.println(General.help);
+                        ++General.indexString;
+                    }
+                    case "about" -> {
+                        System.out.println("VKAnalizator v0.1\nby A.S.Zaykov\nbc1qxs7vzarpr2p3k50fczem3u0wuqwl094m7zd0jx поддержите проэкт биткоином\nhttps://github.com/NotNagibator228/VKAnalizator гитхаб проэкта");
                         ++General.indexString;
                     }
                     case "exit" -> {
