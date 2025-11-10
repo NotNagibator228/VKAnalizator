@@ -7,6 +7,11 @@ import java.util.ArrayList;
 
 public class Token {
     public static boolean run() {
+        if (General.strings.size() - General.indexString < 2) {
+            System.out.println("Error not token command");
+            return false;
+        }
+
         switch (General.strings.get(++General.indexString)) {
             case "add" -> {
                 for (int index = General.indexString + 1; index < General.strings.size(); index += 3) {
@@ -38,6 +43,11 @@ public class Token {
                 for (int element : indices)
                     vkTokens.add(General.vkTokens.data.get(element));
                 General.vkTokens.remove(vkTokens);
+            }
+            case "clear" -> { General.vkTokens.clear(); }
+            default -> {
+                System.out.println("Error not token command: " + General.strings.get(General.indexString));
+                return false;
             }
         }
 

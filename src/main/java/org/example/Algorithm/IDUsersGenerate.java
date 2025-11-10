@@ -7,22 +7,11 @@ import org.example.VKData.UserDB;
 import java.util.*;
 
 public class IDUsersGenerate {
-    public record Pair(int count, int index) implements Comparable<Pair> {
-        @Override
-        public int compareTo(Pair o) {
-            return Integer.compare(count, o.count);
-        }
-    }
-
     public static int getMax(TreeMap<Integer, Integer> data) {
-        Pair[] buffer = new Pair[data.size()];
-        int index = 0;
-
+        int id = 0, max = 0;
         for (Map.Entry<Integer, Integer> entry : data.entrySet())
-            buffer[index++] = new Pair(entry.getValue(), entry.getKey());
-
-        Arrays.sort(buffer);
-        return buffer[buffer.length - 1].index;
+            if (entry.getValue() > max) { id = entry.getKey(); max = entry.getValue(); }
+        return id;
     }
 
     public static int getGenerateUserIdGenerate(int id, int indexGenerate, int index) {
@@ -44,7 +33,7 @@ public class IDUsersGenerate {
 
     public static int getGenerateUserIdGenerate(int id, int indexGenerate, int index, long date) {
         TreeSet<Integer> generate = Generate.getGenerateUserIds(id, indexGenerate, index, date);
-        if (generate.isEmpty()) return -1;
+        if (generate == null || generate.isEmpty()) return -1;
 
         TreeMap<Integer, Integer> buffer = new TreeMap<>();
         for (int element : generate) {

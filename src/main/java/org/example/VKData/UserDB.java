@@ -22,7 +22,8 @@ public class UserDB {
     public IDsHistory[] iDsHistories = null;
     public OnlineHistory onlineHistory = null;
 
-    public static final char[] nameChar = { 'F', 'L', 'N', 'S', 'D' };
+    public static final char[] chars = { 'F', 'L', 'N', 'S', 'D', 'T', 'S', 'B', 'S' };
+    public static final char[] charIds = { 'F', 'S', 'G' };
 
     public void addPhoneNumber(String str) {
         if (phoneNumberLong > 0) return;
@@ -150,35 +151,66 @@ public class UserDB {
     public String toString() {
         StringBuilder buffer = new StringBuilder();
         if (idHistories != null) {
-            for (int index = 0; index < nameChar.length; ++index) {
+            for (int index = 0; index < General.userStringCount; ++index) {
                 if (idHistories[index] != null) {
-                    buffer.append(nameChar[index]);
+                    buffer.append(chars[index]);
                     buffer.append(Colors.ANSI_GREEN).append(General.userStrings[index].strings.get(idHistories[index].data.getLast().id)).append(Colors.ANSI_RESET);
+                }
+            }
+
+            for (int index = General.userStringCount; index < UserIDEnum.values().length; ++index) {
+                if (idHistories[index] != null) {
+                    buffer.append(chars[index]);
+                    buffer.append(Colors.ANSI_GREEN).append(idHistories[index].data.getLast().id).append(Colors.ANSI_RESET);
                 }
             }
         } else buffer.append("NoneName");
 
-        if (phoneNumberLong != -1) buffer.append(Colors.ANSI_GREEN).append((phoneNumberLong > 0) ? Long.toString(phoneNumberLong) : phoneNumberString).append(Colors.ANSI_RESET);
 
+        if (iDsHistories != null) {
+            buffer.append(":");
+            for (int index = 0; index < UserIDsEnum.values().length; ++index)
+                if (iDsHistories[index] != null)
+                    buffer.append(charIds[index]).append(Colors.ANSI_GREEN).append((iDsHistories[index].last.data == null) ? "0" : Integer.toString(iDsHistories[index].last.data.length)).append(Colors.ANSI_RESET);
+        }
+
+        if (phoneNumberLong != -1) buffer.append(Colors.ANSI_GREEN).append((phoneNumberLong > 0) ? Long.toString(phoneNumberLong) : phoneNumberString).append(Colors.ANSI_RESET);
         return buffer.toString();
     }
 
     public String toString(long date) {
         StringBuilder buffer = new StringBuilder();
         if (idHistories != null) {
-            for (int index = 0; index < nameChar.length; ++index) {
+            for (int index = 0; index < General.userStringCount; ++index) {
                 if (idHistories[index] != null) {
-
                     IDHistory.Node node = idHistories[index].get(date);
                     if (node == null) continue;
-                    buffer.append(nameChar[index]);
+                    buffer.append(chars[index]);
                     buffer.append(Colors.ANSI_GREEN).append(General.userStrings[index].strings.get(node.id)).append(Colors.ANSI_RESET);
+                }
+            }
+
+            for (int index = General.userStringCount; index < UserIDEnum.values().length; ++index) {
+                if (idHistories[index] != null) {
+                    IDHistory.Node node = idHistories[index].get(date);
+                    if (node == null) continue;
+                    buffer.append(chars[index]);
+                    buffer.append(Colors.ANSI_GREEN).append(node.id).append(Colors.ANSI_RESET);
                 }
             }
         } else buffer.append("NoneName");
 
-        if (phoneNumberLong != -1) buffer.append(Colors.ANSI_GREEN).append((phoneNumberLong > 0) ? Long.toString(phoneNumberLong) : phoneNumberString).append(Colors.ANSI_RESET);
+        if (iDsHistories != null) {
+            buffer.append(':');
+            for (int index = 0; index < UserIDsEnum.values().length; ++index) {
+                if (iDsHistories[index] != null) {
+                    int count = iDsHistories[index].size(date);
+                    if (count != -1) buffer.append(charIds[index]).append(Colors.ANSI_GREEN).append(count).append(Colors.ANSI_RESET);
+                }
+            }
+        }
 
+        if (phoneNumberLong != -1) buffer.append(Colors.ANSI_GREEN).append((phoneNumberLong > 0) ? Long.toString(phoneNumberLong) : phoneNumberString).append(Colors.ANSI_RESET);
         return buffer.toString();
     }
 }

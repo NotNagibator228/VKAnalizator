@@ -3,6 +3,7 @@ package org.example.Console;
 import org.example.Algorithm.Chains;
 import org.example.Algorithm.Generate;
 import org.example.Clients.ScanClasses;
+import org.example.Colors;
 import org.example.Console.DB.Groups;
 import org.example.Console.DB.IDsBase;
 import org.example.Console.DB.Users;
@@ -108,12 +109,7 @@ public class Other {
             }
         }
 
-
-
         while (General.strings.size() - General.indexString > 1) {
-            //ОткладОчка
-            //System.out.println("Debug: " + General.strings.get(General.indexString));
-
             if (!General.strings.get(General.indexString).equals(">")) break;
             if (data.data == null || data.data.isEmpty()) {
                 System.out.println("error data is empty");
@@ -127,7 +123,13 @@ public class Other {
 
             switch (General.strings.get(++General.indexString)) {
                 case "out" -> { data.out(); }
+                case "count" -> { System.out.println(Colors.ANSI_GREEN + Integer.toString(data.data.size()) + Colors.ANSI_RESET); }
                 case "scan" -> {
+                    if (General.vkTokens.data.isEmpty()) {
+                        System.out.println("Error not accessTokens");
+                        return false;
+                    }
+
                     ++General.indexString;
                     Scan.Node node = Scan.getScan();
                     if (node == null) return false;
@@ -146,6 +148,22 @@ public class Other {
 
                     scan.start();
                     scan.join();
+                }
+                case "history" -> {
+                    if (General.strings.size() - General.indexString < 2) {
+                        System.out.println("Error not command of history");
+                        return false;
+                    }
+
+                    if (data instanceof Users users) {
+                        switch (General.strings.get(++General.indexString)) {
+                            case "friends" -> { users.outHistoryIds(UserIDsEnum.FRIENDS.ordinal()); }
+                            default -> {
+                                System.out.println("Error not command history: " + General.strings.get(General.indexString));
+                                return false;
+                            }
+                        }
+                    }
                 }
                 case "filter" -> {
                     if (General.strings.size() - General.indexString < 3) {
@@ -217,7 +235,32 @@ public class Other {
 
                         }
                         case "idGenerate" -> {
+                            if (data instanceof Users users) {
+                                ++General.indexString;
+                                Base.GenerateAndLevel args = new Base.GenerateAndLevel();
+                                if (args.error) return false;
 
+                                int id;
+                                try {
+                                    id = Integer.parseInt(General.strings.get(General.indexString + 1));
+                                } catch (NumberFormatException e) {
+                                    System.out.println("Error unconvert id: " + General.strings.get(General.indexString + 1));
+                                    return false;
+                                }
+
+                                switch (General.strings.get(General.indexString)) {
+                                    case "city" -> { users.filterIdGenerate(UserIDEnum.CITY.ordinal(), id, args.generate, args.level); }
+                                    case "type" -> { users.filterIdGenerate(UserIDEnum.TYPE.ordinal(), id, args.generate, args.level); }
+                                    case "sex" -> { { users.filterIdGenerate(UserIDEnum.SEX.ordinal(), id, args.generate, args.level); } }
+                                    default -> {
+                                        System.out.println("Error is generate command: " + General.strings.get(General.indexString));
+                                        return false;
+                                    }
+                                } ++General.indexString;
+                            } else {
+                                System.out.println("Error io element is not users");
+                                return false;
+                            }
                         }
                     }
                 }

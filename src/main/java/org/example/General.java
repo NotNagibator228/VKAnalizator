@@ -30,7 +30,11 @@ public class General {
     public static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ss:mm:HH dd/MM/yyyy");
     public static final String help =
             "dataBase { load { file, ... } / save { file } / info }" +
-                    "\ntoken { add { id accessToken, ... } / remove { id, ... } / info }"
+                    "\ntoken { add { id accessToken, ... } / remove { id, ... } / info }" +
+                    "\nscan { --level -l, --rerty -r, --rertyTime -t, --tokens -t ( friends / users / groups / groupsBy) 228, ... }, ..." +
+                    "\nhelp\nabout\nexit\n" +
+                    "\nIO commands base argument" +
+                    "\nusers, friends, groups, usersAll, friendsGenerate"
             ;
 
     public static final StringHistory[] userStrings = new StringHistory[userStringCount];
@@ -55,6 +59,8 @@ public class General {
             idGenerateGroups[index] = new TreeMap<>();
         for (int index = 0; index < GenerateIDsEnum.values().length; ++index)
             generateIds[index] = new TreeMap<>();
+
+        threadCount = Runtime.getRuntime().availableProcessors();
     }
 
     void clear() {

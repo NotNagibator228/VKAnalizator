@@ -53,7 +53,7 @@ public class Base {
 
     public static ArrayList<Names> getNames() {
         ArrayList<Names> buffer = new ArrayList<>();
-        while (General.strings.size() - General.indexString > 2) {
+        while (General.strings.size() - General.indexString > 1) {
             if (General.strings.get(General.indexString).equals(">") || General.strings.get(General.indexString).equals("&")) break;
             buffer.add(new Names(General.strings.get(General.indexString), General.strings.get(General.indexString + 1)));
             General.indexString += 2;
@@ -115,7 +115,7 @@ public class Base {
         if (General.strings.get(General.indexString).charAt(0) == '-') {
             if (General.strings.get(General.indexString).length() == 1) {
                 System.out.println("Error length general argument -");
-                return false;
+                return null;
             }
 
             if (General.strings.get(General.indexString).charAt(1) == '-') {
@@ -170,5 +170,70 @@ public class Base {
             }
             General.indexString += 2;
         } return buffer;
+    }
+
+    public static class GenerateAndLevel {
+        public int level = 2;
+        public boolean generate = false;
+        public boolean error = false;
+
+        public GenerateAndLevel() {
+            while (General.strings.size() - General.indexString > 0) {
+                if (General.strings.get(General.indexString).charAt(0) == '-') {
+                    if (General.strings.get(General.indexString).length() == 1) {
+                        System.out.println("Error length argument -");
+                        error = true;
+                        return;
+                    }
+
+                    if (General.strings.get(General.indexString).charAt(1) == '-') {
+                        switch (General.strings.get(General.indexString).substring(2)) {
+                            case "generate" -> { generate = true; }
+                            case "level" -> {
+                                ++General.indexString;
+                                try {
+                                    level = Integer.parseInt(General.strings.get(General.indexString));
+                                } catch (NumberFormatException e) {
+                                    System.out.println("Error unconvert level: " + General.strings.get(General.indexString));
+                                    error = true;
+                                    return;
+                                }
+                            }
+                            default -> {
+                                System.out.println("Error not argument: " + General.strings.get(General.indexString).substring(2));
+                                error = true;
+                                return;
+                            }
+                        }
+                    } else {
+                        for (char element : General.strings.get(General.indexString).substring(1).toCharArray()) {
+                            switch (element) {
+                                case 'g' -> { generate = true; }
+                                case 'l' -> {
+                                    ++General.indexString;
+                                    try {
+                                        level = Integer.parseInt(General.strings.get(General.indexString));
+                                    } catch (NumberFormatException e) {
+                                        System.out.println("Error unconvert level: " + General.strings.get(General.indexString));
+                                        error = true;
+                                        return;
+                                    }
+                                }
+                                default -> {
+                                    System.out.println("Error not key: " + element);
+                                    error = true;
+                                    return;
+                                }
+                            }
+                        }
+                    } ++General.indexString;
+                } else break;
+            }
+
+            if (level < 2) {
+                System.out.println("Error level < 2");
+                error = true;
+            }
+        }
     }
 }

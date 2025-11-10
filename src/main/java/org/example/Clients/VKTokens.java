@@ -32,4 +32,9 @@ public class VKTokens {
         System.out.println(Colors.ANSI_GREEN + "Added aceessToken: " + Colors.ANSI_RESET + vkToken);
         return true;
     }
+
+    public void clear() {
+        data.clear();
+        ids.clear();
+    }
 }

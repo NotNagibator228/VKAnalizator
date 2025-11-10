@@ -195,9 +195,6 @@ public class Scan {
                                 default -> throw new IllegalStateException("Unexpected value: " + node.type);
                             }
                     );
-
-                    if (General.strings.get(General.indexString).equals(",")) ++General.indexString;
-                    else break;
                 } else return false;
             } else break;
         }
