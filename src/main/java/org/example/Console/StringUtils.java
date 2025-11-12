@@ -14,7 +14,7 @@ public class StringUtils {
                             buffer.add(string.substring(a, b));
                             a = b; done = true; break q;
                         }
-                        case ',', '>', '&', '{', '}' -> {
+                        case ',', '>', '&', '{', '}', '=', '<' -> {
                             if (a != b) buffer.add(string.substring(a, b));
                             buffer.add(string.substring(b, b + 1));
                             a = b; done = true; break q;

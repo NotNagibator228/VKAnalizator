@@ -14,7 +14,8 @@ public class IDUsersGenerate {
         return id;
     }
 
-    public static int getGenerateUserIdGenerate(int id, int indexGenerate, int index) {
+    public static int getGenerateUserIdGenerate(int id, int indexGenerate, int index) throws InterruptedException {
+        General.lock.lock1();
         TreeSet<Integer> generate = General.generateIds[indexGenerate].get(id);
         if (generate == null) return -1;
 
@@ -27,11 +28,13 @@ public class IDUsersGenerate {
             buffer.put(userDB.idHistories[index].data.getLast().id, buffer.getOrDefault(userDB.idHistories[index].data.getLast().id, 0) + 1);
         }
 
+        General.lock.unlock1();
         if (buffer.isEmpty()) return -2;
         return getMax(buffer);
     }
 
-    public static int getGenerateUserIdGenerate(int id, int indexGenerate, int index, long date) {
+    public static int getGenerateUserIdGenerate(int id, int indexGenerate, int index, long date) throws InterruptedException {
+        General.lock.lock1();
         TreeSet<Integer> generate = Generate.getGenerateUserIds(id, indexGenerate, index, date);
         if (generate == null || generate.isEmpty()) return -1;
 
@@ -47,11 +50,13 @@ public class IDUsersGenerate {
             buffer.put(node.id, buffer.getOrDefault(node.id, 0) + 1);
         }
 
+        General.lock.unlock1();
         if (buffer.isEmpty()) return -2;
         return getMax(buffer);
     }
 
-    public static int getGenerateUserId(int userId, int indexIds, int indexId) {
+    public static int getGenerateUserId(int userId, int indexIds, int indexId) throws InterruptedException {
+        General.lock.lock1();
         UserDB userDB = General.users.get(userId);
         if (userDB == null) return -1;
         if (userDB.iDsHistories == null) return -2;
@@ -67,11 +72,13 @@ public class IDUsersGenerate {
             buffer.put(user.idHistories[indexId].data.getLast().id, buffer.getOrDefault(user.idHistories[indexId].data.getLast().id, 0) + 1);
         }
 
+        General.lock.unlock1();
         if (buffer.isEmpty()) return -5;
         return getMax(buffer);
     }
 
-    public static int getGenerateUserId(int userId, int indexIds, int indexId, long date) {
+    public static int getGenerateUserId(int userId, int indexIds, int indexId, long date) throws InterruptedException {
+        General.lock.lock1();
         UserDB userDB = General.users.get(userId);
         if (userDB == null) return -1;
         if (userDB.iDsHistories == null) return -2;
@@ -91,6 +98,7 @@ public class IDUsersGenerate {
             buffer.put(node.id, buffer.getOrDefault(node.id, 0) + 1);
         }
 
+        General.lock.unlock1();
         if (buffer.isEmpty()) return -6;
         return getMax(buffer);
     }

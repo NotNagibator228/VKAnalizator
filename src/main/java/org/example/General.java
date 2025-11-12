@@ -5,11 +5,13 @@ import org.example.Data.StringHistory;
 import org.example.Enum.GenerateIDsEnum;
 import org.example.Enum.GroupIDEnum;
 import org.example.Enum.UserIDEnum;
+import org.example.Networks.Server.Server;
 import org.example.VKData.GroupDB;
 import org.example.VKData.UserDB;
 
 import java.lang.management.ManagementFactory;
 import java.lang.management.RuntimeMXBean;
+import java.net.ServerSocket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -24,8 +26,10 @@ public class General {
     public static ArrayList<String> strings;
     public static int indexString;
     public final static VKTokens vkTokens = new VKTokens();
-    public final static Object lock = new Object();
+    public final static Lock lock = new Lock();
     public static int threadCount = 4;
+    public static final int port = 228;
+    public static Server server = null;
 
     public static final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("ss:mm:HH dd/MM/yyyy");
     public static final String help =

@@ -22,7 +22,7 @@ public class UserDB {
     public IDsHistory[] iDsHistories = null;
     public OnlineHistory onlineHistory = null;
 
-    public static final char[] chars = { 'F', 'L', 'N', 'S', 'D', 'T', 'S', 'B', 'S' };
+    public static final char[] chars = { 'F', 'L', 'N', 'S', 'D', 'T', 'C', 'B', 'S' };
     public static final char[] charIds = { 'F', 'S', 'G' };
 
     public void addPhoneNumber(String str) {

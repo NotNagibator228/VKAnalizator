@@ -137,7 +137,7 @@ public class Base {
 
     public static Long getDate() {
         long buffer = 0;
-        if (General.strings.get(General.indexString).charAt(0) == '-') {
+        if (General.strings.size() - General.indexString > 0 && General.strings.get(General.indexString).charAt(0) == '-') {
             if (General.strings.get(General.indexString).length() == 1) {
                 System.out.println("Error length argument -");
                 return null;

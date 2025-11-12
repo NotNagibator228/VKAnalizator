@@ -1,11 +1,9 @@
 package org.example;
 
-import org.example.Console.DataBase;
-import org.example.Console.Other;
-import org.example.Console.Scan;
-import org.example.Console.Token;
+import org.example.Console.*;
 
 import java.io.*;
+import java.net.Socket;
 import java.util.Scanner;
 
 import static org.example.Console.StringUtils.getString;
@@ -32,8 +30,10 @@ public class Main {
                         System.out.println(General.help);
                         ++General.indexString;
                     }
+                    case "client" -> { if (!Client.run()) continue q; }
+                    case "server" -> { if (!Server.run()) continue q; }
                     case "about" -> {
-                        System.out.println("VKAnalizator v0.2\nby A.S.Zaykov\nbc1qxs7vzarpr2p3k50fczem3u0wuqwl094m7zd0jx поддержите проэкт биткоином\nhttps://github.com/NotNagibator228/VKAnalizator гитхаб проэкта");
+                        System.out.println("VKAnalizator v0.3\nby A.S.Zaykov\nbc1qxs7vzarpr2p3k50fczem3u0wuqwl094m7zd0jx поддержите проэкт биткоином\nhttps://github.com/NotNagibator228/VKAnalizator гитхаб проэкта");
                         ++General.indexString;
                     }
                     case "exit" -> {

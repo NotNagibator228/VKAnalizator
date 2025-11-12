@@ -43,12 +43,12 @@ public class ScanThreads {
                 if (index % 20 == 0) System.out.println("Scan friends: " + Integer.toString(index) + " in " + Integer.toString(ids.size()));
                 try {
                     RequestsGetID buffer = vkToken.friendsGet(ids.get(index));
-                    synchronized (General.lock) {
+                    General.lock.lock0();
                         int[] array = DataAdd.addFriends(buffer);
                         if (array != null)
                             for (int id : array)
                                 newScan.add(id);
-                    }
+                    General.lock.unlock0();
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 } catch (VKToken.VkError e) {

@@ -1,5 +1,6 @@
 package org.example;
 
+import javax.crypto.spec.DESedeKeySpec;
 import java.util.ArrayList;
 
 public class Utils {
@@ -76,5 +77,32 @@ public class Utils {
             buffer.append(data[index]).append(',');
         buffer.append(data[data.length - 1]);
         return buffer.toString();
+    }
+
+    public static class DecomposeTheQuantity {
+        public final int count, fix, thread;
+        public int begin = 0, end = 0, index = 0;
+
+        public DecomposeTheQuantity(int size, int thread) {
+            this.thread = Math.min(size, thread);
+            this.count = size / this.thread;
+            this.fix = size % this.thread;
+        }
+
+        public void next0() {
+            this.end += count;
+            if (index < fix) ++this.end;
+            index++;
+        }
+
+        public void next1() {
+            this.begin = end;
+        }
+
+        public void reset() {
+            this.begin = 0;
+            this.end = 0;
+            this.index = 0;
+        }
     }
 }

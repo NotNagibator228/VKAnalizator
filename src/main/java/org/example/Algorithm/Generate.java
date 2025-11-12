@@ -8,7 +8,8 @@ import java.util.Arrays;
 import java.util.TreeSet;
 
 public class Generate {
-    public static TreeSet<Integer> getGenerateUserIds(int id, int indexGenerate, int index, long date) {
+    public static TreeSet<Integer> getGenerateUserIds(int id, int indexGenerate, int index, long date) throws InterruptedException {
+        General.lock.lock1();
         TreeSet<Integer> set = General.generateIds[indexGenerate].get(id);
         TreeSet<Integer> buffer = new TreeSet<>();
 
@@ -21,11 +22,13 @@ public class Generate {
             if (temp.contains(id)) buffer.add(element);
         }
 
+        General.lock.unlock1();
         if (buffer.isEmpty()) return null;
         return buffer;
     }
 
-    public TreeSet<Integer> getGeneralGenerate(int indexGenerate, ArrayList<Integer> ids) {
+    public TreeSet<Integer> getGeneralGenerate(int indexGenerate, ArrayList<Integer> ids) throws InterruptedException {
+        General.lock.lock1();
         TreeSet<Integer> temp = General.generateIds[indexGenerate].get(ids.getFirst());
         if (temp == null) return null;
         TreeSet<Integer> buffer = new TreeSet<>(temp);
@@ -34,7 +37,10 @@ public class Generate {
             temp = General.generateIds[indexGenerate].get(ids.get(index));
             if (temp == null) return null;
             buffer.retainAll(temp);
-        } return ((buffer.isEmpty()) ? null : buffer);
+        }
+
+        General.lock.unlock1();
+        return ((buffer.isEmpty()) ? null : buffer);
     }
 
     public static ArrayList<Integer> getGeneral(int[][] data) {
@@ -55,10 +61,11 @@ public class Generate {
         } return (buffer.isEmpty()) ? null : buffer;
     }
 
-    public static ArrayList<Integer> getGeneralUserIds(ArrayList<Integer> data, int indexIds) {
+    public static ArrayList<Integer> getGeneralUserIds(ArrayList<Integer> data, int indexIds) throws InterruptedException {
         int[][] buffer = new int[data.size()][];
         int index = 0;
 
+        General.lock.lock1();
         for (int element : data) {
             UserDB userDB = General.users.get(element);
             if (userDB == null) return null;
@@ -67,6 +74,9 @@ public class Generate {
             int[] temp = userDB.iDsHistories[indexIds].last.data;
             if (temp == null) return null;
             buffer[index++] = temp;
-        } return getGeneral(buffer);
+        }
+
+        General.lock.unlock1();
+        return getGeneral(buffer);
     }
 }

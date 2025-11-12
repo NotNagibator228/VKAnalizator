@@ -10,7 +10,7 @@ import org.example.VKData.UserDB;
 import java.util.*;
 
 public class Chains {
-    public static class Base {
+    public static class Base extends Thread {
         public record Node(int id, int[] array) { }
 
         public class DB {
@@ -29,15 +29,18 @@ public class Chains {
         public long date;
 
         public DB genNoDate() { return null; }
-        public DB genDate() { return null; }
+        public DB genDate() throws InterruptedException { return null; }
 
         protected Base() { }
 
-        public Base(ArrayList<Integer> in, ArrayList<Integer> to, long date) {
+        public Base(ArrayList<Integer> in, ArrayList<Integer> to, long date) throws InterruptedException {
             this.in = in;
             this.to = to;
             this.date = date;
+
+            General.lock.lock1();
             DB data = ((date == 0) ? genNoDate() : genDate());
+            General.lock.unlock1();
 
             if (!data.done.isEmpty()) {
                 in = new ArrayList<>(data.done);
@@ -113,8 +116,10 @@ public class Chains {
             }
         }
 
-        public void out() {
+        public void out() throws InterruptedException {
             System.out.println("Chain in: ");
+            General.lock.lock1();
+
             if (date == 0) {
                 for (int index = 0; index < in.size(); ++index)
                     System.out.println("\t" + Integer.toString(index) + "\t:" + Integer.toString(in.get(index)) + ':' + General.users.get(in.get(index)));
@@ -137,7 +142,7 @@ public class Chains {
                         System.out.println("\t" + ((Utils.binSearch(to, data[a][b].id)) ? Colors.ANSI_YELLOW : "") + Integer.toString(b) + Colors.ANSI_RESET + "\t:" + Colors.ANSI_RED + Utils.arrayToString(data[a][b].array) + Colors.ANSI_RESET);
                     }
                 }
-            }
+            } General.lock.unlock1();
         }
     }
 
@@ -176,7 +181,7 @@ public class Chains {
         }
 
         @Override
-        public DB genDate() {
+        public DB genDate() throws InterruptedException {
             DB buffer = new DB();
             for (int element : in) {
                 TreeSet<Integer> temp = Generate.getGenerateUserIds(element, GenerateIDsEnum.FRIENDS.ordinal(), UserIDsEnum.FRIENDS.ordinal(), date);
@@ -208,7 +213,7 @@ public class Chains {
             } return buffer;
         }
 
-        public ChainGenerate(ArrayList<Integer> in, ArrayList<Integer> to, long date) {
+        public ChainGenerate(ArrayList<Integer> in, ArrayList<Integer> to, long date) throws InterruptedException {
             super(in, to, date);
         }
     }
@@ -284,20 +289,37 @@ public class Chains {
             } return buffer;
         }
 
-        public Chain(ArrayList<Integer> in, ArrayList<Integer> to, long date) {
+        public Chain(ArrayList<Integer> in, ArrayList<Integer> to, long date) throws InterruptedException {
             super(in, to, date);
         }
     }
 
     public static class ChainUsersBase extends Base {
-        public DB genNoDate(ArrayList<Integer> data) { return null; }
-        public DB genDate(ArrayList<Integer> data) { return null; }
+        public final ArrayList<Integer> users;
 
-        public ChainUsersBase(ArrayList<Integer> in, ArrayList<Integer> to, long date, ArrayList<Integer> data) {
+        public DB genNoDate(ArrayList<Integer> data) { return null; }
+        public DB genDate(ArrayList<Integer> data) throws InterruptedException { return null; }
+
+        public ChainUsersBase(ArrayList<Integer> in, ArrayList<Integer> to, long date, ArrayList<Integer> data) throws InterruptedException {
             this.in = in;
             this.to = to;
+            this.users = data;
+        }
 
-            DB buffer = ((date == 0) ? genNoDate(data) : genDate(data));
+        @Override
+        public void run() {
+            try {
+                General.lock.lock1();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            DB buffer = null;
+            try {
+                buffer = ((date == 0) ? genNoDate(users) : genDate(users));
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            General.lock.unlock1();
             if (!buffer.done.isEmpty()) generate(buffer.data);
         }
     }
@@ -338,7 +360,7 @@ public class Chains {
         }
 
         @Override
-        public DB genDate(ArrayList<Integer> data) {
+        public DB genDate(ArrayList<Integer> data) throws InterruptedException {
             DB buffer = new DB();
             for (int element : in) {
                 TreeSet<Integer> temp = Generate.getGenerateUserIds(element, GenerateIDsEnum.FRIENDS.ordinal(), UserIDsEnum.FRIENDS.ordinal(), date);
@@ -372,7 +394,7 @@ public class Chains {
             } return buffer;
         }
 
-        public ChainGenerateUsers (ArrayList<Integer> in, ArrayList<Integer> to, long date, ArrayList<Integer> data) {
+        public ChainGenerateUsers (ArrayList<Integer> in, ArrayList<Integer> to, long date, ArrayList<Integer> data) throws InterruptedException {
             super(in, to, date, data);
         }
     }
@@ -450,7 +472,7 @@ public class Chains {
             } return buffer;
         }
 
-        public ChainUsers(ArrayList<Integer> in, ArrayList<Integer> to, long date, ArrayList<Integer> data) {
+        public ChainUsers(ArrayList<Integer> in, ArrayList<Integer> to, long date, ArrayList<Integer> data) throws InterruptedException {
             super(in, to, date, data);
         }
     }

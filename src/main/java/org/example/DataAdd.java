@@ -3,6 +3,7 @@ package org.example;
 import com.google.gson.JsonObject;
 import org.example.Data.IDHistory;
 import org.example.Data.IDsHistory;
+import org.example.Data.OnlineHistory;
 import org.example.Enum.GenerateIDsEnum;
 import org.example.Enum.TypeEnum;
 import org.example.Enum.UserIDEnum;
@@ -46,17 +47,59 @@ public class DataAdd {
         //ОткладОЧКА
         //System.out.println(jsonObject);
 
-        for (int index = 0; index < 4; ++index)
-            if (jsonObject.has(names[index]))
-                addName(userDB, date, jsonObject.get(names[index]).getAsString(), index, id);
+        if (!jsonObject.has("deactivated")) {
+            for (int index = 0; index < 4; ++index)
+                if (jsonObject.has(names[index]))
+                    addName(userDB, date, jsonObject.get(names[index]).getAsString(), index, id);
+
+            if (jsonObject.has("bdate")) {
+                if (userDB.idHistories[UserIDEnum.BDATE.ordinal()] == null) userDB.idHistories[UserIDEnum.BDATE.ordinal()] = new IDHistory();
+                int bdate = addBDate(jsonObject.get("bdate").getAsString());
+                General.idGenerateUsers[UserIDEnum.BDATE.ordinal()].computeIfAbsent(bdate, s -> new TreeSet<>()).add(id);
+                userDB.idHistories[UserIDEnum.BDATE.ordinal()].update(date, bdate);
+            }
+
+            if (jsonObject.has("city")) {
+                if (userDB.idHistories[UserIDEnum.CITY.ordinal()] == null) userDB.idHistories[UserIDEnum.CITY.ordinal()] = new IDHistory();
+                int city = jsonObject.get("city").getAsJsonObject().get("id").getAsInt();
+                General.idGenerateUsers[UserIDEnum.CITY.ordinal()].computeIfAbsent(city, s -> new TreeSet<>()).add(id);
+                userDB.idHistories[UserIDEnum.CITY.ordinal()].update(date, city);
+            }
+
+            if (jsonObject.has("is_closed")) {
+                if (userDB.idHistories[UserIDEnum.TYPE.ordinal()] == null) userDB.idHistories[UserIDEnum.TYPE.ordinal()] = new IDHistory();
+                int type = (jsonObject.get("is_closed").getAsBoolean() ? TypeEnum.PRIVATE.ordinal() : TypeEnum.PUBLIC.ordinal());
+                General.idGenerateUsers[UserIDEnum.TYPE.ordinal()].computeIfAbsent(type, s -> new TreeSet<>()).add(id);
+                userDB.idHistories[UserIDEnum.TYPE.ordinal()].update(date, type);
+            }
+
+            if (jsonObject.has("online")) {
+                if (userDB.onlineHistory == null) userDB.onlineHistory = new OnlineHistory();
+                if (jsonObject.get("online").getAsInt() == 1) {
+                    userDB.onlineHistory.update(date, 0, jsonObject.get("online_app").getAsInt());
+                } else {
+                    userDB.onlineHistory.update(
+                            date, jsonObject.get("last_seen").getAsJsonObject().get("time").getAsLong(),
+                            ((jsonObject.get("last_seen").getAsJsonObject().has("platform")) ?jsonObject.get("last_seen").getAsJsonObject().get("platform").getAsInt() : 0)
+                    );
+                }
+            }
+
+
+            if (jsonObject.has("mobile_phone")) {
+                String str = jsonObject.get("mobile_phone").getAsString();
+                if (!str.isEmpty()) userDB.addPhoneNumber(str);
+            }
+        } else {
+            if (userDB.idHistories[UserIDEnum.TYPE.ordinal()] == null) userDB.idHistories[UserIDEnum.TYPE.ordinal()] = new IDHistory();
+            int type = (jsonObject.get("deactivated").getAsString().equals("banned") ? TypeEnum.BANNED.ordinal() : TypeEnum.DELETED.ordinal());
+            General.idGenerateUsers[UserIDEnum.TYPE.ordinal()].computeIfAbsent(type, s -> new TreeSet<>()).add(id);
+            userDB.idHistories[UserIDEnum.TYPE.ordinal()].update(date, type);
+        }
+
         if (jsonObject.has("domain")) addDomain(userDB, date, jsonObject.get("domain").getAsString(), id);
 
-        if (jsonObject.has("bdate")) {
-            if (userDB.idHistories[UserIDEnum.BDATE.ordinal()] == null) userDB.idHistories[UserIDEnum.BDATE.ordinal()] = new IDHistory();
-            int bdate = addBDate(jsonObject.get("bdate").getAsString());
-            General.idGenerateUsers[UserIDEnum.BDATE.ordinal()].computeIfAbsent(bdate, s -> new TreeSet<>()).add(id);
-            userDB.idHistories[UserIDEnum.BDATE.ordinal()].update(date, bdate);
-        }
+
 
         if (jsonObject.has("sex")) {
             if (userDB.idHistories[UserIDEnum.SEX.ordinal()] == null) userDB.idHistories[UserIDEnum.SEX.ordinal()] = new IDHistory();
@@ -65,44 +108,13 @@ public class DataAdd {
             userDB.idHistories[UserIDEnum.SEX.ordinal()].update(date, sex);
         }
 
-        if (jsonObject.has("city")) {
-            if (userDB.idHistories[UserIDEnum.CITY.ordinal()] == null) userDB.idHistories[UserIDEnum.CITY.ordinal()] = new IDHistory();
-            int city = jsonObject.get("city").getAsJsonObject().get("id").getAsInt();
-            General.idGenerateUsers[UserIDEnum.CITY.ordinal()].computeIfAbsent(city, s -> new TreeSet<>()).add(id);
-            userDB.idHistories[UserIDEnum.CITY.ordinal()].update(date, city);
-        }
-
-        if (jsonObject.has("deactivated")) {
-            if (userDB.idHistories[UserIDEnum.TYPE.ordinal()] == null) userDB.idHistories[UserIDEnum.TYPE.ordinal()] = new IDHistory();
-            int type = (jsonObject.get("deactivated").getAsString().equals("banned") ? TypeEnum.BANNED.ordinal() : TypeEnum.DELETED.ordinal());
-            General.idGenerateUsers[UserIDEnum.TYPE.ordinal()].computeIfAbsent(type, s -> new TreeSet<>()).add(id);
-            userDB.idHistories[UserIDEnum.TYPE.ordinal()].update(date, type);
-        }
-
-        if (jsonObject.has("is_closed")) {
-            if (userDB.idHistories[UserIDEnum.TYPE.ordinal()] == null) userDB.idHistories[UserIDEnum.TYPE.ordinal()] = new IDHistory();
-            int type = (jsonObject.get("is_closed").getAsBoolean() ? TypeEnum.PRIVATE.ordinal() : TypeEnum.PUBLIC.ordinal());
-            General.idGenerateUsers[UserIDEnum.TYPE.ordinal()].computeIfAbsent(type, s -> new TreeSet<>()).add(id);
-            userDB.idHistories[UserIDEnum.TYPE.ordinal()].update(date, type);
-        }
-
-        /*
-        if (jsonObject.has("mobile_phone")) {
-            String str = jsonObject.get("mobile_phone").getAsString();
-            if (!str.isEmpty()) userDB.addPhoneNumber(str);
-        }
-         */
 
 
-        /*
-        if (jsonObject.has("last_seen")) {
-            if (userDB.onlineHistory == null) userDB.onlineHistory = new OnlineHistory();
-            userDB.onlineHistory.update(date, jsonObject.get("last_seen").getAsJsonObject().get("time").getAsLong(), jsonObject.get("last_seen").getAsJsonObject().get("platform").getAsInt());
-        } else if (jsonObject.has("online_app")) {
-            if (userDB.onlineHistory == null) userDB.onlineHistory = new OnlineHistory();
-            userDB.onlineHistory.update(date, 0, jsonObject.get("online_app").getAsInt());
-        }
-         */
+
+
+
+
+
 
         return id;
     }
